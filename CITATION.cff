@@ -1,0 +1,73 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "CMB E-mode Phase Transition Analysis Code"
+version: 1.0.0
+date-released: 2025-01-19
+authors:
+  - family-names: "Weiner"
+    given-names: "Bryce"
+    email: "bryce.weiner@informationphysicsinstitute.net"
+    affiliation: "Information Physics Institute"
+repository-code: "https://github.com/bryceweiner/cmb-phase-transitions"
+license: MIT
+abstract: >
+  Analysis code for detecting quantum phase transitions in CMB E-mode
+  polarization data and deriving the cosmological constant from
+  information-theoretic first principles. Implements the complete
+  analysis pipeline for the paper "Pre-Recombination Spacetime Expansion
+  Events Resolve the Cosmological Constant Problem Through Information Physics".
+keywords:
+  - cosmology
+  - CMB
+  - cosmological constant
+  - information physics
+  - phase transitions
+  - quantum thermodynamics
+preferred-citation:
+  type: article
+  title: "Pre-Recombination Spacetime Expansion Events Resolve the Cosmological Constant Problem Through Information Physics"
+  authors:
+    - family-names: "Weiner"
+      given-names: "Bryce"
+  journal: "Physical Review D"
+  year: 2025
+  status: "submitted"
+references:
+  - type: article
+    title: "E-mode Polarization Phase Transitions Reveal a Fundamental Parameter of the Universe"
+    authors:
+      - family-names: "Weiner"
+        given-names: "Bryce"
+    journal: "IPI Letters"
+    volume: 3
+    issue: 1
+    start: 31
+    end: 39
+    year: 2025
+    doi: "10.59973/ipil.150"
+  - type: article
+    title: "Holographic Information Rate as a Resolution to Contemporary Cosmological Tensions"
+    authors:
+      - family-names: "Weiner"
+        given-names: "Bryce"
+    journal: "IPI Letters"
+    volume: 3
+    issue: 2
+    start: 1
+    end: 12
+    year: 2025
+    doi: "10.59973/ipil.170"
+  - type: article
+    title: "ATLAS Shrugged: Resolving Experimental Tensions in Particle Physics Through Holographic Theory"
+    authors:
+      - family-names: "Weiner"
+        given-names: "Bryce"
+    journal: "IPI Letters"
+    volume: 3
+    issue: 3
+    start: 1
+    end: 15
+    year: 2025
+    doi: "10.59973/ipil.222"
+

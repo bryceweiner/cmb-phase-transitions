@@ -1,0 +1,151 @@
+Expected Numerical Results for Validation
+==========================================
+
+Use these values to validate your installation produces correct results.
+
+PHASE TRANSITIONS
+-----------------
+Transition 1: ℓ = 1076 ± 63
+Transition 2: ℓ = 1706 ± 94
+Transition 3: ℓ = 2336 ± 115
+
+Physical Scales:
+  ℓ=1076: 37,956 pc
+  ℓ=1706: 23,939 pc
+  ℓ=2336: 17,483 pc
+
+STATISTICAL SIGNIFICANCE
+------------------------
+Local Significance: ~125σ
+Global Significance (after LEE): >>5σ
+Bootstrap Detection Rate: 100% (10,000 iterations)
+Bayes Factor: >>100 (decisive evidence)
+
+INFORMATION PROCESSING RATES
+-----------------------------
+Theoretical γ (baseline): 1.031×10⁻²⁰ s⁻¹
+Observed γ(ℓ=1076): 3.358×10⁻²¹ s⁻¹
+Observed γ(ℓ=1706): 4.235×10⁻²¹ s⁻¹
+Observed γ(ℓ=2336): 4.640×10⁻²¹ s⁻¹
+
+EXPANSION FACTORS
+-----------------
+f₁ (ℓ=1076): 3.07 ± 0.18
+f₂ (ℓ=1706): 2.43 ± 0.14
+f₃ (ℓ=2336): 2.22 ± 0.13
+
+Cumulative (detected): 16.6×
+Cumulative (complete): 115.6×
+
+QUANTUM-THERMODYNAMIC ENTROPY PARTITION
+---------------------------------------
+S_coh: 0.693 nats (ln 2)
+S_decoh: -0.307 nats (ln 2 - 1)
+QTEP Ratio: 2.2589 (dimensionless constant)
+
+COSMOLOGICAL CONSTANT
+---------------------
+Λ₀ (baseline): 6.523×10⁻⁵⁶ m⁻²
+Λ₀ (quantum refined): 7.561×10⁻⁵⁶ m⁻²
+Λ₀ (+ geometric 4π): 9.495×10⁻⁵⁵ m⁻²
+Λ₀ (+ historical, detected): 1.576×10⁻⁵³ m⁻²
+Λ₀ (+ historical, complete): 1.098×10⁻⁵² m⁻²
+
+Λ₀ (observed): 1.100×10⁻⁵² m⁻²
+
+Discrepancy (detected only): 7.0× undershoot
+Discrepancy (complete): 0.2% (exact match)
+
+QFT over-prediction: 10¹²² (120 orders of magnitude)
+Information physics: 10⁰·⁰⁰ (exact match with complete framework)
+
+PREDICTED HIGHER MULTIPOLES
+---------------------------
+ℓ₄ = 3157 ± 126 (predicted expansion 2.25×)
+ℓ₅ = 3812 ± 141 (first expansion after instantiation, 3.11×)
+ℓ₆ = 4463 ± 154 (universe instantiation, no expansion)
+
+Instantiation Scale: 9,151 pc
+Initial Horizon Information: ~10¹¹¹ bits
+
+COSMOLOGICAL TENSIONS
+---------------------
+Hubble Tension:
+  Predicted offset: 9.8%
+  Observed offset: 8.6% (5.3σ)
+  Status: RESOLVED
+
+S₈ Tension:
+  Modified growth: σ₈(z) ∝ [γ(z)/γ₀]⁰·⁴
+  Planck vs DES: 2.5σ → <1σ
+  Status: RESOLVED
+
+BAO Tension:
+  Information pressure modifies standard ruler
+  Cross-survey differences: RESOLVED
+  Status: RESOLVED
+
+CROSS-SCALE VALIDATION
+----------------------
+ATLAS Momentum Asymmetry: 2.28 ± 0.31
+QTEP Prediction: 2.257
+Agreement: 0.3σ
+
+ALPHA-g Antimatter Gravity: 0.75 ± 0.29 g
+QTEP Prediction: 0.915 g
+Agreement: Within 1σ
+
+UNIVERSALITY SPAN: 20 orders of magnitude (μeV to TeV)
+
+OUTPUT FILES
+------------
+The analysis should generate:
+
+JSON Data:
+  - cmb_analysis_unified.json (complete results)
+
+Log Files:
+  - cmb_analysis_unified.log (detailed calculations)
+
+Figures:
+  - cmb_phase_transitions_analysis.pdf (main figure)
+  - supplementary_figure_s1_statistical_validation.pdf
+  - supplementary_figure_s2_lambda_evolution.pdf
+  - supplementary_figure_s3_temporal_cascade.pdf
+  - cosmological_tension_bao.pdf
+  - cosmological_tension_s8.pdf
+  - cosmological_tension_matter_density.pdf
+  - hubble_tension_resolution.png
+
+Total: 2 data files + 8 figures
+
+VALIDATION TOLERANCE
+--------------------
+When comparing your results to these expected values:
+
+- Multipole locations: ±5% acceptable
+- Statistical significance: Order of magnitude correct
+- QTEP ratio: ±0.001 (it's mathematically exact)
+- Λ₀ values: ±10% acceptable (depends on H₀ precision)
+- Expansion factors: ±15% acceptable
+- Physical scales: ±10% acceptable
+
+If your results differ by more than these tolerances, check:
+1. Correct data files downloaded
+2. No modifications to detection parameters
+3. Correct version of dependencies
+4. Complete log file for error messages
+
+PERFORMANCE METRICS
+-------------------
+Expected runtime: 3-5 minutes
+Peak memory usage: <2 GB
+Data download size: ~5 MB
+Output size: ~50 MB (with all figures)
+
+Tested on:
+- macOS 14.x (Apple Silicon M1/M2)
+- Ubuntu 22.04 LTS
+- Windows 11
+- Python 3.8, 3.9, 3.10, 3.11
+
