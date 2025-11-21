@@ -364,15 +364,20 @@ class BAOPredictionTest:
                                      alpha_analysis: bool = False,
                                      model_comparison: bool = False,
                                      cross_validation: bool = False,
-                                     null_tests: bool = False) -> Dict[str, Any]:
+                                     null_tests: bool = False,
+                                     alternative_models: bool = False) -> Dict[str, Any]:
         """
         Test all available BAO datasets.
-        
+
         Parameters:
             output_dir (str): Output directory
             with_systematics (bool): Include systematic errors
             alpha_analysis (bool): Perform cross-dataset α analysis
-            
+            model_comparison (bool): Run model comparison statistics
+            cross_validation (bool): Run cross-validation tests
+            null_tests (bool): Run null hypothesis tests
+            alternative_models (bool): Compare against alternative cosmologies
+
         Returns:
             dict: Complete multi-dataset results
         """
@@ -613,7 +618,8 @@ def run_bao_test(output_dir: str = "./results",
             alpha_analysis=alpha_analysis,
             model_comparison=model_comparison,
             cross_validation=cross_validation,
-            null_tests=null_tests
+            null_tests=null_tests,
+            alternative_models=alternative_models
         )
     else:
         return test.run_all_tests(

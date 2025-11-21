@@ -12,24 +12,38 @@ This repository contains the complete statistical validation framework for testi
 
 ## Quick Start
 
-### Installation
+### Option 1: Docker (Recommended)
+
+The easiest way to run the analysis is using Docker, which handles all dependencies automatically.
 
 ```bash
 # Clone repository
+git clone <repository-url>
+cd cmb-phase-transitions-code
+
+# Run complete analysis (single command)
+./run_docker_analysis.sh
+
+# Results appear in ./results/ directory
+```
+
+**Requirements:** Docker installed and running
+
+**Runtime:** ~15-20 minutes  
+**Output:** `results/bao_multi_dataset_validation.json`
+
+### Option 2: Local Installation
+
+```bash
+# Clone repository
+git clone <repository-url>
 cd cmb-phase-transitions-code
 
 # Install dependencies
 pip install -r requirements.txt
-```
 
-### Run Complete Analysis
-
-```bash
-# Full validation (gamma + all BAO datasets + statistical tests)
+# Run complete analysis
 python main.py --gamma --bao --all-datasets --full-validation
-
-# Runtime: ~15-20 minutes
-# Output: results/bao_multi_dataset_validation.json
 ```
 
 ### Quick Tests
@@ -144,6 +158,73 @@ cmb-phase-transitions-code/
 ├── requirements.txt           # Dependencies
 ├── PAPER_OUTLINE.md          # Publication structure
 └── README.md                 # This file
+```
+
+---
+
+## Docker Usage
+
+### Automated Analysis
+
+For the most reliable and reproducible results, use the provided Docker setup:
+
+```bash
+# Single command to run everything
+./run_docker_analysis.sh
+```
+
+This will:
+- Build the Docker image with all dependencies
+- Run the complete analysis (gamma + BAO + full validation)
+- Mount `./results/` directory to access outputs
+- Handle all system dependencies automatically
+
+### Manual Docker Commands
+
+If you prefer to run Docker commands directly:
+
+```bash
+# Build the image
+docker build -t cmb-analysis .
+
+# Run with results mounted to host
+docker run -v $(pwd)/results:/app/results cmb-analysis
+
+# Or run a specific analysis
+docker run -v $(pwd)/results:/app/results cmb-analysis \
+  python main.py --gamma --bao --all-datasets
+```
+
+### Docker Benefits
+
+- **Zero configuration**: No need to install Python packages
+- **Reproducible**: Same environment every time
+- **Isolated**: Doesn't affect your system Python installation
+- **Cross-platform**: Works on Linux, macOS, Windows
+- **Publication-ready**: Ensures exact reproduction of results
+
+### Troubleshooting
+
+**"Docker not found"**
+```bash
+# Install Docker Desktop
+# macOS: https://docs.docker.com/desktop/install/mac-install/
+# Linux: https://docs.docker.com/engine/install/
+# Windows: https://docs.docker.com/desktop/install/windows-install/
+```
+
+**Permission denied on results directory**
+```bash
+# Ensure results directory exists and is writable
+mkdir -p results
+chmod 755 results
+```
+
+**Build fails**
+```bash
+# Clear Docker cache and rebuild
+docker system prune -a
+docker build --no-cache -t cmb-analysis .
 ```
 
 ---
@@ -274,16 +355,29 @@ Where:
 
 ## Requirements
 
-### Python Packages
+### Option 1: Docker (Recommended)
+
+- Docker installed and running
+- 8GB RAM minimum, 16GB recommended
+- ~5GB disk space for analysis and results
+
+**Benefits:** Zero configuration, fully reproducible, cross-platform
+
+### Option 2: Local Python Environment
+
+#### Python Packages
 
 ```
 numpy>=1.21.0
 scipy>=1.10.0
 matplotlib>=3.4.0
+requests>=2.26.0
+emcee>=3.1.0
+dynesty>=2.0.0
 torch>=2.0.0  (optional, for MPS acceleration)
 ```
 
-### Hardware
+#### Hardware
 
 **Minimum:**
 - Any modern CPU
