@@ -16,7 +16,10 @@ Paper reference: Figure 1 and supplementary figures
 """
 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for headless environments
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from typing import Dict, Any, Optional
 import os
 
@@ -367,8 +370,8 @@ class Visualizer:
         Lambda_eff_z = []
         for z in z_range:
             H = H_z(z)
-            # Use theoretical gamma calculation
-            gamma_z = H / np.log(np.pi * C**2 / (HBAR * G * H**2))
+            # Use theoretical gamma calculation (corrected: c⁵ not c²)
+            gamma_z = H / np.log(np.pi * C**5 / (HBAR * G * H**2))
             gamma_tP = gamma_z * T_PLANCK
             rho_Lambda_z = (gamma_tP**2) * QTEP_RATIO * RHO_PLANCK
             Lambda_z = 8 * np.pi * G * rho_Lambda_z / C**2
@@ -391,7 +394,7 @@ class Visualizer:
         for z_epoch, label, obs_val in epochs:
             if z_epoch > 0:
                 H_epoch = H_z(z_epoch)
-                gamma_epoch = H_epoch / np.log(np.pi * C**2 / (HBAR * G * H_epoch**2))
+                gamma_epoch = H_epoch / np.log(np.pi * C**5 / (HBAR * G * H_epoch**2))
                 Lambda_epoch = 8 * np.pi * G * RHO_PLANCK * (gamma_epoch * T_PLANCK)**2 * QTEP_RATIO / C**2
                 
                 ax_a.plot(z_epoch, Lambda_epoch, 'ro', markersize=8)
@@ -887,6 +890,241 @@ class Visualizer:
         
         return figure_paths
     
+    def create_multilevel_validation_figure(self, multilevel_results: Dict[str, Any]) -> str:
+        """
+        Create comprehensive multilevel validation figure.
+        
+        Panels:
+        A. ACT independent analysis (detection + significance)
+        B. Planck independent analysis (detection + significance)  
+        C. Combined dataset comparison (3 methods + boost factors)
+        D. Cross-validation results (prediction accuracy)
+        E. Significance summary (forest plot)
+        
+        Parameters:
+            multilevel_results (dict): Results from multilevel validation
+            
+        Returns:
+            str: Path to saved figure
+        """
+        self.output.log_message("\nGenerating multilevel validation figure...")
+        
+        fig = plt.figure(figsize=(16, 20))
+        gs = gridspec.GridSpec(5, 2, figure=fig, height_ratios=[1, 1, 1, 1, 1], hspace=0.4, wspace=0.3)
+        
+        level1 = multilevel_results.get('level1_independent', {})
+        level2 = multilevel_results.get('level2_combined', {})
+        level3 = multilevel_results.get('level3_cross_validation', {})
+        
+        # Panel A: ACT Independent Analysis
+        ax_a = fig.add_subplot(gs[0, :])
+        ax_a.text(0.5, 0.9, 'LEVEL 1: INDEPENDENT DATASET ANALYSIS', 
+                 ha='center', va='top', fontsize=14, fontweight='bold', transform=ax_a.transAxes)
+        
+        act_results = level1.get('ACT', {})
+        planck_results = level1.get('Planck', {})
+        
+        if act_results:
+            act_sig = act_results.get('significance', {})
+            act_trans = act_results.get('detection', {}).get('transitions', [])
+            act_text = f"ACT DR6:\n  Transitions: {len(act_trans)}\n  Significance: {act_sig.get('global_sigma', 0):.2f}σ"
+        else:
+            act_text = "ACT DR6: No data"
+        
+        if planck_results:
+            planck_sig = planck_results.get('significance', {})
+            planck_trans = planck_results.get('detection', {}).get('transitions', [])
+            planck_text = f"Planck 2018:\n  Transitions: {len(planck_trans)}\n  Significance: {planck_sig.get('global_sigma', 0):.2f}σ"
+        else:
+            planck_text = "Planck 2018: No data"
+        
+        ax_a.text(0.25, 0.5, act_text, ha='center', va='center', fontsize=12, 
+                 transform=ax_a.transAxes, bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.5))
+        ax_a.text(0.75, 0.5, planck_text, ha='center', va='center', fontsize=12,
+                 transform=ax_a.transAxes, bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.5))
+        ax_a.axis('off')
+        
+        # Panel B: Comparison table
+        ax_b = fig.add_subplot(gs[1, :])
+        comparison = level1.get('comparison', {})
+        if comparison:
+            datasets = comparison.get('datasets', [])
+            sig_dict = comparison.get('significance', {})
+            detect_dict = comparison.get('detections', {})
+            
+            table_data = []
+            table_data.append(['Dataset', 'Detections', 'Significance', 'Status'])
+            for ds in datasets:
+                n_det = detect_dict.get(ds, 0)
+                sig = sig_dict.get(ds, 0)
+                status = '✓' if sig >= 3.0 and n_det > 0 else '~' if sig >= 2.0 else '✗'
+                table_data.append([ds, str(n_det), f"{sig:.2f}σ", status])
+            
+            table = ax_b.table(cellText=table_data, loc='center', cellLoc='center',
+                             colWidths=[0.3, 0.2, 0.3, 0.2])
+            table.auto_set_font_size(False)
+            table.set_fontsize(11)
+            table.scale(1, 2)
+            
+            # Style header row
+            for i in range(4):
+                table[(0, i)].set_facecolor('#4CAF50')
+                table[(0, i)].set_text_props(weight='bold', color='white')
+        
+        ax_b.axis('off')
+        ax_b.set_title('Independent Dataset Comparison', fontsize=12, fontweight='bold', pad=10)
+        
+        # Panel C: Level 2 - Combined Analysis
+        ax_c = fig.add_subplot(gs[2, :])
+        ax_c.text(0.5, 0.95, 'LEVEL 2: COMBINED DATASET ANALYSIS', 
+                 ha='center', va='top', fontsize=14, fontweight='bold', transform=ax_c.transAxes)
+        
+        if level2:
+            methods = list(level2.keys())
+            y_pos = [0.7, 0.5, 0.3]
+            colors = ['#2196F3', '#FF9800', '#9C27B0']
+            
+            for i, method in enumerate(methods):
+                result = level2[method]
+                comparison = result.get('comparison_to_individual', {})
+                boost = comparison.get('boost_factor', 0)
+                interp = comparison.get('interpretation', 'unknown')
+                
+                # Color based on interpretation
+                if interp == 'boost':
+                    color = '#4CAF50'
+                    symbol = '✓'
+                elif interp == 'consistent':
+                    color = '#FF9800'
+                    symbol = '~'
+                else:
+                    color = '#F44336'
+                    symbol = '✗'
+                
+                text = f"{symbol} {method.replace('_', ' ').title()}: {boost:.2f}× boost"
+                ax_c.text(0.1, y_pos[i], text, fontsize=11, transform=ax_c.transAxes,
+                         bbox=dict(boxstyle='round', facecolor=color, alpha=0.3))
+        
+        ax_c.axis('off')
+        
+        # Panel D: Level 3 - Cross-Validation
+        ax_d = fig.add_subplot(gs[3, :])
+        ax_d.text(0.5, 0.95, 'LEVEL 3: CROSS-VALIDATION', 
+                 ha='center', va='top', fontsize=14, fontweight='bold', transform=ax_d.transAxes)
+        
+        if level3:
+            act_to_planck = level3.get('act_to_planck', {})
+            planck_to_act = level3.get('planck_to_act', {})
+            mi = level3.get('mutual_information', 0)
+            combined_acc = level3.get('combined_accuracy', 0)
+            
+            cv_text = f"ACT → Planck: {act_to_planck.get('accuracy', 0)*100:.1f}% accuracy\n"
+            cv_text += f"Planck → ACT: {planck_to_act.get('accuracy', 0)*100:.1f}% accuracy\n"
+            cv_text += f"Mutual Information: {mi:.3f} bits\n"
+            cv_text += f"Combined Score: {combined_acc*100:.1f}%"
+            
+            ax_d.text(0.5, 0.5, cv_text, ha='center', va='center', fontsize=11,
+                     transform=ax_d.transAxes, bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.5))
+        
+        ax_d.axis('off')
+        
+        # Panel E: Significance Forest Plot
+        ax_e = fig.add_subplot(gs[4, :])
+        ax_e.set_title('Significance Summary (Forest Plot)', fontsize=12, fontweight='bold', pad=10)
+        
+        labels = []
+        sigmas = []
+        
+        if act_results:
+            labels.append('ACT')
+            sigmas.append(act_results.get('significance', {}).get('global_sigma', 0))
+        
+        if planck_results:
+            labels.append('Planck')
+            sigmas.append(planck_results.get('significance', {}).get('global_sigma', 0))
+        
+        if level2:
+            for method, result in level2.items():
+                labels.append(f"Combined\n({method.replace('_', ' ')})")
+                sigmas.append(result.get('significance', {}).get('global_sigma', 0))
+        
+        if labels:
+            y_positions = np.arange(len(labels))
+            colors_forest = ['#2196F3', '#4CAF50'] + ['#FF9800'] * (len(labels) - 2)
+            
+            ax_e.barh(y_positions, sigmas, color=colors_forest, alpha=0.7, edgecolor='black')
+            ax_e.set_yticks(y_positions)
+            ax_e.set_yticklabels(labels, fontsize=10)
+            ax_e.set_xlabel('Global Significance (σ)', fontsize=11)
+            ax_e.axvline(x=3, color='orange', linestyle='--', linewidth=2, label='3σ (evidence)')
+            ax_e.axvline(x=5, color='red', linestyle='--', linewidth=2, label='5σ (discovery)')
+            ax_e.legend(loc='lower right', fontsize=9)
+            ax_e.grid(axis='x', alpha=0.3)
+            
+            # Add values on bars
+            for i, (y, sig) in enumerate(zip(y_positions, sigmas)):
+                ax_e.text(sig + 0.1, y, f'{sig:.2f}σ', va='center', fontsize=9)
+        
+        fig.suptitle('Multi-Level Validation Summary', fontsize=16, fontweight='bold', y=0.995)
+        
+        # Save figure
+        output_path = os.path.join(self.figure_dir, 'supplementary_figure_s4_multilevel_validation.pdf')
+        fig.savefig(output_path, dpi=300, bbox_inches='tight', format='pdf')
+        plt.close(fig)
+        
+        self.output.register_figure(output_path)
+        self.output.log_message(f"Multilevel validation figure saved: {output_path}")
+        
+        return output_path
+    
+    def create_core_figures(self, ell: np.ndarray, C_ell: np.ndarray,
+                           C_ell_err: np.ndarray, dC_dell: np.ndarray,
+                           transitions: np.ndarray, errors: np.ndarray,
+                           advanced_stats: Optional[Dict[str, Any]] = None,
+                           multilevel_results: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+        """
+        Create core analysis figures only (no theoretical interpretations).
+        
+        Generates:
+        - Main analysis figure (power spectrum, derivative)
+        - Supplementary S1 (statistical validation)
+        
+        Skips:
+        - Supplementary S2 (Lambda evolution) - theoretical interpretation
+        - Supplementary S3 (temporal cascade) - theoretical interpretation  
+        - Tension figures (BAO, S8, Hubble) - theoretical implications
+        
+        Parameters:
+            ell, C_ell, C_ell_err, dC_dell: Power spectrum data
+            transitions, errors: Detected transitions
+            advanced_stats: Statistical analysis results
+            
+        Returns:
+            dict: Paths to generated core figures
+        """
+        self.output.log_section_header("GENERATING CORE FIGURES")
+        self.output.log_message("(Use --extend for theoretical interpretation figures)")
+        
+        figures = {}
+        
+        # Main figure (without gamma interpretation)
+        figures['main'] = self.create_main_figure(
+            ell, C_ell, C_ell_err, dC_dell, transitions, errors, gamma_values=None
+        )
+        
+        # Supplementary S1 (statistical validation - always relevant)
+        if advanced_stats is not None:
+            figures['supp_s1'] = self.create_supplementary_s1(
+                ell, C_ell, C_ell_err, transitions, errors, advanced_stats
+            )
+        
+        # Supplementary S4 (multilevel validation - if performed)
+        if multilevel_results is not None:
+            figures['supp_s4'] = self.create_multilevel_validation_figure(multilevel_results)
+        
+        self.output.log_message(f"Generated {len(figures)} core figures")
+        return figures
+    
     def create_all_figures(self, ell: np.ndarray, C_ell: np.ndarray,
                           C_ell_err: np.ndarray, dC_dell: np.ndarray,
                           transitions: np.ndarray, errors: np.ndarray,
@@ -894,7 +1132,8 @@ class Visualizer:
                           lambda_results: Optional[Dict[str, Any]] = None,
                           cascade_results: Optional[Dict[str, Any]] = None,
                           tension_results: Optional[Dict[str, Any]] = None,
-                          advanced_stats: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+                          advanced_stats: Optional[Dict[str, Any]] = None,
+                          multilevel_results: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
         """
         Create all figures for publication.
         
@@ -939,6 +1178,10 @@ class Visualizer:
         if tension_results is not None:
             tension_figs = self.create_tension_visualizations(tension_results)
             figures.update(tension_figs)
+        
+        # Supplementary S4 (multilevel validation - if performed)
+        if multilevel_results is not None:
+            figures['supp_s4'] = self.create_multilevel_validation_figure(multilevel_results)
         
         self.output.log_message(f"\nGenerated {len(figures)} figures")
         

@@ -50,7 +50,12 @@ class TheoreticalCalculations:
         """
         Calculate theoretical γ from holographic entropy bounds.
         
-        Formula (paper line 107): γ = H/ln(πc²/ℏGH²)
+        Formula (gamma_theoretical_derivation.tex line 29, 159): 
+        γ = H/ln(πc⁵/GℏH²)
+        
+        Dimensional analysis requires c⁵ (not c²) to render the logarithmic
+        argument dimensionless. This emerges from expressing horizon area in
+        Planck units: N_Planck_areas = 4πc⁵/(GℏH²).
         
         This emerges from the Bekenstein bound on maximum information
         processable within a causal horizon.
@@ -61,7 +66,7 @@ class TheoreticalCalculations:
         Returns:
             float: Information processing rate in s⁻¹
         """
-        arg = (np.pi * C**2) / (HBAR * G * H**2)
+        arg = (np.pi * C**5) / (HBAR * G * H**2)
         gamma = H / np.log(arg)
         return gamma
     
@@ -77,7 +82,7 @@ class TheoreticalCalculations:
         S_bh = S_BH - (3/2) * ln(S_BH / ln(2)) + const + O(S_BH^{-1})
         
         This modifies the information processing rate:
-        γ_refined = H / [ln(π c²/ℏG H²) - (3/2) * ln(ln(π c²/ℏG H²)/ln(2))]
+        γ_refined = H / [ln(π c⁵/Gℏ H²) - (3/2) * ln(ln(π c⁵/Gℏ H²)/ln(2))]
         
         Parameters:
             H (float): Hubble parameter in s⁻¹
@@ -87,8 +92,8 @@ class TheoreticalCalculations:
                 - gamma_refined: Refined information processing rate in s⁻¹
                 - correction_factor: Ratio of refined to baseline γ
         """
-        # Baseline calculation
-        arg = (np.pi * C**2) / (HBAR * G * H**2)
+        # Baseline calculation (corrected: c⁵ not c² for dimensional consistency)
+        arg = (np.pi * C**5) / (HBAR * G * H**2)
         ln_arg = np.log(arg)
         gamma_baseline = H / ln_arg
         
